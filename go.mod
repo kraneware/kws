@@ -3,6 +3,8 @@ module github.com/kraneware/kws
 go 1.17
 
 replace github.com/kraneware/kore-go => ../kore-go
+replace github.com/kraneware/kws/services => ./
+
 
 require (
 	github.com/aws/aws-lambda-go v1.29.0

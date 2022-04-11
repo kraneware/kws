@@ -29,4 +29,5 @@ type AwsEndpointSet struct {
 	APIGateway     string
 	EC2            string
 	SecretsManager string
+	STS            string
 }

@@ -2,11 +2,34 @@ package services
 
 import (
 	"encoding/json"
+	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/kraneware/kws/config"
+	"sync"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
+
+var (
+	dynamoDbClient     *dynamodb.DynamoDB // nolint:gochecknoglobals
+	dynamoDbClientInit sync.Once          // nolint:gochecknoglobals
+)
+
+// DynamoDbClient returns an DynamoDB client singleton
+func DynamoDbClient() *dynamodb.DynamoDB {
+	dynamoDbClientInit.Do(func() {
+		c := sessionConfig()
+		if config.Endpoints.DynamoDB != "" {
+			c = c.WithEndpoint(config.Endpoints.DynamoDB)
+		}
+		dynamoDbClient = dynamodb.New(NewSession(c))
+
+		xray.AWS(dynamoDbClient.Client)
+	})
+
+	return dynamoDbClient
+}
 
 // UnmarshalStreamImage coverts images incoming from DynamoDB streams to given struct
 func UnmarshalStreamImage(attribute map[string]events.DynamoDBAttributeValue, out interface{}) (err error) {

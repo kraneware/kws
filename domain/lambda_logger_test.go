@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/google/uuid"
 
-	. "github.com/kraneware/core-go/domain"
+	. "github.com/kraneware/kws/domain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"

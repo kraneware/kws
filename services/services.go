@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/aws/aws-sdk-go/service/apigateway"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/kraneware/kws/config"
@@ -22,7 +21,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -32,9 +30,6 @@ import (
 )
 
 var (
-	dynamoDbClient     *dynamodb.DynamoDB // nolint:gochecknoglobals
-	dynamoDbClientInit sync.Once          // nolint:gochecknoglobals
-
 	lambdaClient     *lambda.Lambda // nolint:gochecknoglobals
 	lambdaClientInit sync.Once      // nolint:gochecknoglobals
 
@@ -74,9 +69,6 @@ var (
 	glueClient     glueiface.GlueAPI // nolint:gochecknoglobals
 	glueClientInit sync.Once         // nolint:gochecknoglobals
 
-	ec2Client     *ec2.EC2  // nolint:gochecknoglobals
-	ec2ClientInit sync.Once // nolint:gochecknoglobals
-
 	secretClient     *secretsmanager.SecretsManager // nolint:gochecknoglobals
 	secretClientInit sync.Once                      // nolint:gochecknoglobals
 )
@@ -105,21 +97,6 @@ func sessionConfig() *aws.Config {
 
 func localS3Config(c *aws.Config, endpoint string) *aws.Config {
 	return c.WithEndpoint(endpoint).WithS3ForcePathStyle(true).WithDisableSSL(true)
-}
-
-// DynamoDbClient returns an DynamoDB client singleton
-func DynamoDbClient() *dynamodb.DynamoDB {
-	dynamoDbClientInit.Do(func() {
-		c := sessionConfig()
-		if config.Endpoints.DynamoDB != "" {
-			c = c.WithEndpoint(config.Endpoints.DynamoDB)
-		}
-		dynamoDbClient = dynamodb.New(NewSession(c))
-
-		xray.AWS(dynamoDbClient.Client)
-	})
-
-	return dynamoDbClient
 }
 
 // LambdaClient returns an Lambda client singleton
@@ -306,13 +283,26 @@ func SSMClient() (svc *ssm.SSM) { // nolint:interfacer
 }
 
 func GlueClient() (svc glueiface.GlueAPI) { // nolint:interfacer
-	c := sessionConfig()
-
 	glueClientInit.Do(func() {
+		c := sessionConfig()
 		glueClient = glue.New(NewSession(c))
 	})
 
 	return glueClient
+}
+
+func STSClient() (svc *sts.STS) { // nolint:interfacer
+	c := sessionConfig()
+
+	stsClientInit.Do(func() {
+		if config.Endpoints.STS != "" {
+			c = c.WithEndpoint(config.Endpoints.STS)
+		}
+
+		stsClient = sts.New(NewSession(c))
+	})
+
+	return stsClient
 }
 
 // APIGWClient returns an apigw client singleton
@@ -328,22 +318,6 @@ func APIGWClient() *apigateway.APIGateway {
 	})
 
 	return apigwClient
-}
-
-func EC2Client() *ec2.EC2 { // nolint:gochecknoglobals
-	c := sessionConfig()
-
-	ec2ClientInit.Do(func() {
-		if config.Endpoints.EC2 != "" {
-			c = c.WithEndpoint(config.Endpoints.EC2)
-		}
-
-		ec2Client = ec2.New(NewSession(c))
-
-		xray.AWS(ec2Client.Client)
-	})
-
-	return ec2Client
 }
 
 func SecretClient() *secretsmanager.SecretsManager {
