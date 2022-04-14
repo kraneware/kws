@@ -10,8 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/glue"
 	"github.com/aws/aws-sdk-go/service/glue/glueiface"
 
-	"github.com/aws/aws-xray-sdk-go/xray"
-
 	"github.com/aws/aws-sdk-go/service/sagemaker"
 	"github.com/aws/aws-sdk-go/service/ssm"
 
@@ -26,7 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
-	xray2 "github.com/aws/aws-sdk-go/service/xray"
+	// xray2 "github.com/aws/aws-sdk-go/service/xray"
 )
 
 var (
@@ -54,8 +52,8 @@ var (
 	cwLogsClient     *cloudwatchlogs.CloudWatchLogs // nolint:gochecknoglobals
 	cwLogsClientInit sync.Once                      // nolint:gochecknoglobals
 
-	xrayClient     *xray2.XRay // nolint:gochecknoglobals
-	xrayClientInit sync.Once   // nolint:gochecknoglobals
+	//xrayClient     *xray2.XRay // nolint:gochecknoglobals
+	//xrayClientInit sync.Once   // nolint:gochecknoglobals
 
 	rdsClient     *rds.RDS  // nolint:gochecknoglobals
 	rdsClientInit sync.Once // nolint:gochecknoglobals
@@ -81,7 +79,7 @@ func NewSession(config *aws.Config) *session.Session {
 	}))
 }
 
-func sessionConfig() *aws.Config {
+func SessionConfig() *aws.Config {
 	c := aws.NewConfig()
 
 	if config.Region != "" {
@@ -102,13 +100,13 @@ func localS3Config(c *aws.Config, endpoint string) *aws.Config {
 // LambdaClient returns an Lambda client singleton
 func LambdaClient() *lambda.Lambda {
 	lambdaClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.Lambda != "" {
 			c = c.WithEndpoint(config.Endpoints.Lambda)
 		}
 		lambdaClient = lambda.New(NewSession(c))
 
-		xray.AWS(lambdaClient.Client)
+		// xray.AWS(lambdaClient.Client)
 	})
 
 	return lambdaClient
@@ -117,13 +115,13 @@ func LambdaClient() *lambda.Lambda {
 // SNSClient returns an SNS client singleton
 func SNSClient() *sns.SNS {
 	snsClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.SNS != "" {
 			c = c.WithEndpoint(config.Endpoints.SNS)
 		}
 		snsClient = sns.New(NewSession(c))
 
-		xray.AWS(snsClient.Client)
+		// xray.AWS(snsClient.Client)
 	})
 
 	return snsClient
@@ -131,13 +129,13 @@ func SNSClient() *sns.SNS {
 
 // SNSClient returns an SNS client singleton
 func SNSClientInRegion(region string) *sns.SNS {
-	c := sessionConfig().WithRegion(region)
+	c := SessionConfig().WithRegion(region)
 	if config.Endpoints.SNS != "" {
 		c = c.WithEndpoint(config.Endpoints.SNS)
 	}
 	snsClient := sns.New(NewSession(c))
 
-	xray.AWS(snsClient.Client)
+	//xray.AWS(snsClient.Client)
 
 	return snsClient
 }
@@ -145,13 +143,13 @@ func SNSClientInRegion(region string) *sns.SNS {
 // SQSClient returns an SQS client singleton
 func SQSClient() *sqs.SQS {
 	sqsClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.SQS != "" {
 			c = c.WithEndpoint(config.Endpoints.SQS)
 		}
 		sqsClient = sqs.New(NewSession(c))
 
-		xray.AWS(sqsClient.Client)
+		//xray.AWS(sqsClient.Client)
 	})
 
 	return sqsClient
@@ -160,13 +158,13 @@ func SQSClient() *sqs.SQS {
 // S3Client returns an S3 client singleton
 func S3Client() *s3.S3 {
 	s3ClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.S3 != "" {
 			c = localS3Config(c, config.Endpoints.S3)
 		}
 		s3Client = s3.New(NewSession(c))
 
-		xray.AWS(s3Client.Client)
+		//xray.AWS(s3Client.Client)
 	})
 
 	return s3Client
@@ -174,7 +172,7 @@ func S3Client() *s3.S3 {
 
 // S3Downloader returns a new S3 downloader
 func S3Downloader() *s3manager.Downloader {
-	c := sessionConfig()
+	c := SessionConfig()
 	if config.Endpoints.S3 != "" {
 		c = localS3Config(c, config.Endpoints.S3)
 	}
@@ -183,7 +181,7 @@ func S3Downloader() *s3manager.Downloader {
 
 // S3Uploader return a new S3 uploader
 func S3Uploader() *s3manager.Uploader {
-	c := sessionConfig()
+	c := SessionConfig()
 	if config.Endpoints.S3 != "" {
 		c = localS3Config(c, config.Endpoints.S3)
 	}
@@ -193,7 +191,7 @@ func S3Uploader() *s3manager.Uploader {
 // CWLogsClient returns a new CloudWatch Logs client
 func CWLogsClient() *cloudwatchlogs.CloudWatchLogs {
 	cwLogsClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 
 		if config.Endpoints.CloudWatchLogs != "" {
 			c = c.WithEndpoint(config.Endpoints.CloudWatchLogs)
@@ -208,7 +206,7 @@ func CWLogsClient() *cloudwatchlogs.CloudWatchLogs {
 // CWClient returns a new CLoudWatch client
 func CWClient() *cloudwatch.CloudWatch {
 	cwClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 
 		if config.Endpoints.CloudWatch != "" {
 			c = c.WithEndpoint(config.Endpoints.CloudWatch)
@@ -220,29 +218,16 @@ func CWClient() *cloudwatch.CloudWatch {
 	return cwClient
 }
 
-// XRayClient returns a new X-Ray client
-func XRayClient() *xray2.XRay {
-	xrayClientInit.Do(func() {
-		c := sessionConfig()
-		if config.Endpoints.XRay != "" {
-			c = c.WithEndpoint(config.Endpoints.XRay)
-		}
-		xrayClient = xray2.New(NewSession(c))
-	})
-
-	return xrayClient
-}
-
 // RDSClient returns a new RDS client
 func RDSClient() *rds.RDS {
 	rdsClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.RDS != "" {
 			c = c.WithEndpoint(config.Endpoints.RDS)
 		}
 		rdsClient = rds.New(NewSession(c))
 
-		xray.AWS(rdsClient.Client)
+		//xray.AWS(rdsClient.Client)
 	})
 
 	return rdsClient
@@ -251,7 +236,7 @@ func RDSClient() *rds.RDS {
 // SagemakerClient returns a new Sagemaker client
 func SagemakerClient() (svc *sagemaker.SageMaker) { // nolint:interfacer
 	sagemakerClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 
 		if config.Endpoints.Sagemaker != "" {
 			c = c.WithEndpoint(config.Endpoints.Sagemaker)
@@ -259,7 +244,7 @@ func SagemakerClient() (svc *sagemaker.SageMaker) { // nolint:interfacer
 
 		sagemakerClient = sagemaker.New(NewSession(c))
 
-		xray.AWS(sagemakerClient.Client)
+		//xray.AWS(sagemakerClient.Client)
 	})
 
 	return sagemakerClient
@@ -268,7 +253,7 @@ func SagemakerClient() (svc *sagemaker.SageMaker) { // nolint:interfacer
 // SSMClient returns a new client for AWS Systems Manager Agent
 func SSMClient() (svc *ssm.SSM) { // nolint:interfacer
 	ssmClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 
 		if config.Endpoints.SSM != "" {
 			c = c.WithEndpoint(config.Endpoints.SSM)
@@ -276,7 +261,7 @@ func SSMClient() (svc *ssm.SSM) { // nolint:interfacer
 
 		ssmClient = ssm.New(NewSession(c))
 
-		xray.AWS(ssmClient.Client)
+		//xray.AWS(ssmClient.Client)
 	})
 
 	return ssmClient
@@ -284,7 +269,7 @@ func SSMClient() (svc *ssm.SSM) { // nolint:interfacer
 
 func GlueClient() (svc glueiface.GlueAPI) { // nolint:interfacer
 	glueClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		glueClient = glue.New(NewSession(c))
 	})
 
@@ -292,7 +277,7 @@ func GlueClient() (svc glueiface.GlueAPI) { // nolint:interfacer
 }
 
 func STSClient() (svc *sts.STS) { // nolint:interfacer
-	c := sessionConfig()
+	c := SessionConfig()
 
 	stsClientInit.Do(func() {
 		if config.Endpoints.STS != "" {
@@ -308,20 +293,20 @@ func STSClient() (svc *sts.STS) { // nolint:interfacer
 // APIGWClient returns an apigw client singleton
 func APIGWClient() *apigateway.APIGateway {
 	apigwClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.APIGateway != "" {
 			c = c.WithEndpoint(config.Endpoints.APIGateway)
 		}
 		apigwClient = apigateway.New(NewSession(c))
 
-		xray.AWS(apigwClient.Client)
+		//xray.AWS(apigwClient.Client)
 	})
 
 	return apigwClient
 }
 
 func SecretClient() *secretsmanager.SecretsManager {
-	c := sessionConfig()
+	c := SessionConfig()
 
 	secretClientInit.Do(func() {
 		if config.Endpoints.SecretsManager != "" {
@@ -330,7 +315,7 @@ func SecretClient() *secretsmanager.SecretsManager {
 
 		secretClient = secretsmanager.New(NewSession(c))
 
-		xray.AWS(secretClient.Client)
+		//xray.AWS(secretClient.Client)
 	})
 
 	return secretClient

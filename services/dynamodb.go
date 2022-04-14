@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/kraneware/kws/config"
 	"sync"
 
@@ -19,13 +18,13 @@ var (
 // DynamoDbClient returns an DynamoDB client singleton
 func DynamoDbClient() *dynamodb.DynamoDB {
 	dynamoDbClientInit.Do(func() {
-		c := sessionConfig()
+		c := SessionConfig()
 		if config.Endpoints.DynamoDB != "" {
 			c = c.WithEndpoint(config.Endpoints.DynamoDB)
 		}
 		dynamoDbClient = dynamodb.New(NewSession(c))
 
-		xray.AWS(dynamoDbClient.Client)
+		//xray.AWS(dynamoDbClient.Client)
 	})
 
 	return dynamoDbClient
