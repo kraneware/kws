@@ -306,16 +306,14 @@ func APIGWClient() *apigateway.APIGateway {
 }
 
 func SecretClient() *secretsmanager.SecretsManager {
-	c := SessionConfig()
-
 	secretClientInit.Do(func() {
+		c := SessionConfig()
+
 		if config.Endpoints.SecretsManager != "" {
 			c = c.WithEndpoint(config.Endpoints.SecretsManager)
 		}
 
 		secretClient = secretsmanager.New(NewSession(c))
-
-		//xray.AWS(secretClient.Client)
 	})
 
 	return secretClient
