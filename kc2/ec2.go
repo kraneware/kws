@@ -5,7 +5,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/kraneware/kws/config"
-	"github.com/kraneware/kws/services"
 	"os"
 	"sync"
 )
@@ -16,14 +15,14 @@ var (
 )
 
 func EC2Client() *ec2.EC2 { // nolint:gochecknoglobals
-	c := services.SessionConfig()
+	c := config.SessionConfig()
 
 	ec2ClientInit.Do(func() {
 		if config.Endpoints.EC2 != "" {
 			c = c.WithEndpoint(config.Endpoints.EC2)
 		}
 
-		ec2Client = ec2.New(services.NewSession(c))
+		ec2Client = ec2.New(config.NewSession(c))
 	})
 
 	return ec2Client

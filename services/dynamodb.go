@@ -18,11 +18,11 @@ var (
 // DynamoDbClient returns an DynamoDB client singleton
 func DynamoDbClient() *dynamodb.DynamoDB {
 	dynamoDbClientInit.Do(func() {
-		c := SessionConfig()
+		c := config.SessionConfig()
 		if config.Endpoints.DynamoDB != "" {
 			c = c.WithEndpoint(config.Endpoints.DynamoDB)
 		}
-		dynamoDbClient = dynamodb.New(NewSession(c))
+		dynamoDbClient = dynamodb.New(config.NewSession(c))
 
 		//xray.AWS(dynamoDbClient.Client)
 	})
