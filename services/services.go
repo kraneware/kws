@@ -77,7 +77,10 @@ func LambdaClient() *lambda.Lambda {
 			c = c.WithEndpoint(config.Endpoints.Lambda)
 		}
 		lambdaClient = lambda.New(config.NewSession(c))
-		xray.AWS(lambdaClient.Client)
+
+		if config.XRayOn {
+			xray.AWS(lambdaClient.Client)
+		}
 	})
 
 	return lambdaClient
@@ -91,7 +94,10 @@ func SNSClient() *sns.SNS {
 			c = c.WithEndpoint(config.Endpoints.SNS)
 		}
 		snsClient = sns.New(config.NewSession(c))
-		xray.AWS(snsClient.Client)
+
+		if config.XRayOn {
+			xray.AWS(snsClient.Client)
+		}
 	})
 	return snsClient
 }
@@ -103,7 +109,11 @@ func SNSClientInRegion(region string) *sns.SNS {
 		c = c.WithEndpoint(config.Endpoints.SNS)
 	}
 	snsClient := sns.New(config.NewSession(c))
-	xray.AWS(snsClient.Client)
+
+	if config.XRayOn {
+		xray.AWS(snsClient.Client)
+	}
+
 	return snsClient
 }
 
@@ -116,7 +126,9 @@ func SQSClient() *sqs.SQS {
 		}
 		sqsClient = sqs.New(config.NewSession(c))
 
-		xray.AWS(sqsClient.Client)
+		if config.XRayOn {
+			xray.AWS(sqsClient.Client)
+		}
 	})
 
 	return sqsClient
@@ -130,7 +142,9 @@ func S3Client() *s3.S3 {
 			c = config.LocalS3Config(c, config.Endpoints.S3)
 		}
 		s3Client = s3.New(config.NewSession(c))
-		xray.AWS(s3Client.Client)
+		if config.XRayOn {
+			xray.AWS(s3Client.Client)
+		}
 	})
 
 	return s3Client
@@ -201,7 +215,9 @@ func SagemakerClient() (svc *sagemaker.SageMaker) { // nolint:interfacer
 			c = c.WithEndpoint(config.Endpoints.Sagemaker)
 		}
 		sagemakerClient = sagemaker.New(config.NewSession(c))
-		xray.AWS(sagemakerClient.Client)
+		if config.XRayOn {
+			xray.AWS(sagemakerClient.Client)
+		}
 	})
 
 	return sagemakerClient
@@ -215,7 +231,10 @@ func SSMClient() (svc *ssm.SSM) { // nolint:interfacer
 			c = c.WithEndpoint(config.Endpoints.SSM)
 		}
 		ssmClient = ssm.New(config.NewSession(c))
-		xray.AWS(ssmClient.Client)
+
+		if config.XRayOn {
+			xray.AWS(ssmClient.Client)
+		}
 	})
 
 	return ssmClient
@@ -250,7 +269,10 @@ func APIGWClient() *apigateway.APIGateway {
 			c = c.WithEndpoint(config.Endpoints.APIGateway)
 		}
 		apigwClient = apigateway.New(config.NewSession(c))
-		xray.AWS(apigwClient.Client)
+
+		if config.XRayOn {
+			xray.AWS(apigwClient.Client)
+		}
 	})
 
 	return apigwClient

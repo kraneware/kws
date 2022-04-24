@@ -31,3 +31,5 @@ type AwsEndpointSet struct {
 	SecretsManager string
 	STS            string
 }
+
+var XRayOn = false
