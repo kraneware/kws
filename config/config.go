@@ -32,4 +32,4 @@ type AwsEndpointSet struct {
 	STS            string
 }
 
-var XRayOn = false
+const XRayOn = false

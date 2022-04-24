@@ -4,7 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/apigateway"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/aws/aws-xray-sdk-go/xray"
+	//"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/kraneware/kws/config"
 	"sync"
 
@@ -79,7 +79,7 @@ func LambdaClient() *lambda.Lambda {
 		lambdaClient = lambda.New(config.NewSession(c))
 
 		if config.XRayOn {
-			xray.AWS(lambdaClient.Client)
+			////xray.AWS(lambdaClient.Client)
 		}
 	})
 
@@ -96,7 +96,7 @@ func SNSClient() *sns.SNS {
 		snsClient = sns.New(config.NewSession(c))
 
 		if config.XRayOn {
-			xray.AWS(snsClient.Client)
+			////xray.AWS(snsClient.Client)
 		}
 	})
 	return snsClient
@@ -111,7 +111,7 @@ func SNSClientInRegion(region string) *sns.SNS {
 	snsClient := sns.New(config.NewSession(c))
 
 	if config.XRayOn {
-		xray.AWS(snsClient.Client)
+		////xray.AWS(snsClient.Client)
 	}
 
 	return snsClient
@@ -127,7 +127,7 @@ func SQSClient() *sqs.SQS {
 		sqsClient = sqs.New(config.NewSession(c))
 
 		if config.XRayOn {
-			xray.AWS(sqsClient.Client)
+			////xray.AWS(sqsClient.Client)
 		}
 	})
 
@@ -143,7 +143,7 @@ func S3Client() *s3.S3 {
 		}
 		s3Client = s3.New(config.NewSession(c))
 		if config.XRayOn {
-			xray.AWS(s3Client.Client)
+			////xray.AWS(s3Client.Client)
 		}
 	})
 
@@ -216,7 +216,7 @@ func SagemakerClient() (svc *sagemaker.SageMaker) { // nolint:interfacer
 		}
 		sagemakerClient = sagemaker.New(config.NewSession(c))
 		if config.XRayOn {
-			xray.AWS(sagemakerClient.Client)
+			////xray.AWS(sagemakerClient.Client)
 		}
 	})
 
@@ -233,7 +233,7 @@ func SSMClient() (svc *ssm.SSM) { // nolint:interfacer
 		ssmClient = ssm.New(config.NewSession(c))
 
 		if config.XRayOn {
-			xray.AWS(ssmClient.Client)
+			////xray.AWS(ssmClient.Client)
 		}
 	})
 
@@ -271,7 +271,7 @@ func APIGWClient() *apigateway.APIGateway {
 		apigwClient = apigateway.New(config.NewSession(c))
 
 		if config.XRayOn {
-			xray.AWS(apigwClient.Client)
+			////xray.AWS(apigwClient.Client)
 		}
 	})
 
