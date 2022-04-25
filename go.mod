@@ -4,8 +4,6 @@ go 1.17
 
 replace github.com/kraneware/kore-go => ../kore-go
 
-replace github.com/kraneware/kws/services => ./
-
 require (
 	github.com/aws/aws-lambda-go v1.29.0
 	github.com/aws/aws-sdk-go v1.43.36
